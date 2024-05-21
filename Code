@@ -1,0 +1,617 @@
+##Data set cleaning script
+
+#Libraries Needed
+library(dplyr)
+library(tidyverse)
+library(archive)
+
+
+#Load the Data Sets of years 2019-2022 from NHIS Adult Sample Survey
+#Data sets are pulled directly from location at the NHIS webpage and extracted from the zip files
+#Year 2019 Full Adult Sample Survey
+AdultFull2019 <- read.csv(archive_read("https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHIS/2019/adult19csv.zip", file = 1))
+
+#Year 2020 Full Adult Sample Survey
+AdultFull2020 <- read.csv(archive_read("https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHIS/2020/adult20csv.zip", file = 1))
+
+#Year 2021 Full Adult Sample Survey
+AdultFull2021 <- read.csv(archive_read("https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHIS/2021/adult21csv.zip", file = 1))
+
+#Year 2022 Full Adult Sample Survey
+AdultFull2022 <- read.csv(archive_read("https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NHIS/2022/adult22csv.zip", file = 1))
+
+
+#Clean Data Sets for selected variables
+#Variables selected include HHX variable, the assigned Household identifier to allow set to be merged with other NHIS sets if needed
+#Variables chosen include select variables on Survey Year, Diabetes, Socioeconomic, Mental Health, Dietary Habits and Physical Activity
+
+#Data for 2019 cleaned, less dietary health data, no physical activity data
+#included mutated variables for Soda, Vegetables, ModeratelyActive, VigorouslyActive, StrengthAct, and Aerobic
+Clean2019 <- AdultFull2019 %>% 
+  select(HHX, SRVY_YR, DIBTYPE_A, DIBEV_A, 
+         EDUC_A, RATCAT_A, NOTCOV_A, FSNAP12M_A,
+         DEPEV_A, DEPMED_A, ANXEV_A, ANXMED_A, PAIMEDITAT_A,
+         FDSBALANCE_A, FDSSKIP_A) %>% 
+  rename(DiabetesStatus = DIBTYPE_A, EverHadDiabetes = DIBEV_A, 
+         EducationLvl = EDUC_A, PovertyRatio = RATCAT_A, HealthInsurance = NOTCOV_A, FoodStamps = FSNAP12M_A,
+         Depression = DEPEV_A, DepressionMeds = DEPMED_A, Anxiety = ANXEV_A, AnxietyMeds = ANXMED_A, Meditation = PAIMEDITAT_A,
+         AffordFood = FDSBALANCE_A, SkipFood = FDSSKIP_A) %>% 
+  mutate(Soda = NA, Vegetables = NA, 
+         ModeratelyActive = NA, VigorouslyActive = NA, StrengthAct = NA, Aerobic = NA)
+
+#Data for 2020 cleaned, less dietary health data, all physical activity data included
+#included mutated variables for Soda, Vegetables only
+Clean2020 <- AdultFull2020 %>% 
+  select(HHX, SRVY_YR, DIBTYPE_A, DIBEV_A, 
+         EDUC_A, RATCAT_A, NOTCOV_A, FSNAP12M_A,
+         DEPEV_A, DEPMED_A, ANXEV_A, ANXMED_A, PAIMEDITAT_A,
+         FDSBALANCE_A, FDSSKIP_A,
+         MODFREQW_A, VIGFREQW_A, STRFREQW_A, PA18_02R_A) %>% 
+  rename(DiabetesStatus = DIBTYPE_A, EverHadDiabetes = DIBEV_A, 
+         EducationLvl = EDUC_A, PovertyRatio = RATCAT_A, HealthInsurance = NOTCOV_A, FoodStamps = FSNAP12M_A,
+         Depression = DEPEV_A, DepressionMeds = DEPMED_A, Anxiety = ANXEV_A, AnxietyMeds = ANXMED_A, Meditation = PAIMEDITAT_A,
+         AffordFood = FDSBALANCE_A, SkipFood = FDSSKIP_A,
+         ModeratelyActive = MODFREQW_A, VigorouslyActive = VIGFREQW_A, StrengthAct = STRFREQW_A, Aerobic = PA18_02R_A) %>% 
+  mutate(Soda = NA, Vegetables = NA)
+
+#Data for 2021 cleaned, no meditation variable, less dietary health data, no physical activity data included
+#included mutated variables for Soda, Vegetables, Mediation, ModeratelyActive, VigorouslyActive, StrengthAct, and Aerobic
+Clean2021 <- AdultFull2021 %>% 
+  select(HHX, SRVY_YR, DIBTYPE_A, DIBEV_A, 
+         EDUCP_A, RATCAT_A, NOTCOV_A, FSNAP12M_A,
+         DEPEV_A, DEPMED_A, ANXEV_A, ANXMED_A,
+         FDSBALANCE_A, FDSSKIP_A) %>% 
+  rename(DiabetesStatus = DIBTYPE_A, EverHadDiabetes = DIBEV_A, 
+         EducationLvl = EDUCP_A, PovertyRatio = RATCAT_A, HealthInsurance = NOTCOV_A, FoodStamps = FSNAP12M_A,
+         Depression = DEPEV_A, DepressionMeds = DEPMED_A, Anxiety = ANXEV_A, AnxietyMeds = ANXMED_A,
+         AffordFood = FDSBALANCE_A, SkipFood = FDSSKIP_A) %>% 
+  mutate(Soda = NA, Vegetables = NA, Meditation = NA,
+         ModeratelyActive = NA, VigorouslyActive = NA, StrengthAct = NA, Aerobic = NA)
+
+#Data for 2022 cleaned, all variables present
+#no mutated variables needed to add missing variables
+Clean2022 <- AdultFull2022 %>% 
+  select(HHX, SRVY_YR, DIBTYPE_A, DIBEV_A, 
+         EDUCP_A, RATCAT_A, NOTCOV_A, FSNAP12M_A,
+         DEPEV_A, DEPMED_A, ANXEV_A, ANXMED_A, MEDIHLTH_A,
+         FDSBALANCE_A, FDSSKIP_A, SODANO_A, OVEGNO_A,
+         MODFREQW_A, VIGFREQW_A, STRFREQW_A, PA18_02R_A) %>% 
+  rename(DiabetesStatus = DIBTYPE_A, EverHadDiabetes = DIBEV_A, 
+         EducationLvl = EDUCP_A, PovertyRatio = RATCAT_A, HealthInsurance = NOTCOV_A, FoodStamps = FSNAP12M_A,
+         Depression = DEPEV_A, DepressionMeds = DEPMED_A, Anxiety = ANXEV_A, AnxietyMeds = ANXMED_A, Meditation = MEDIHLTH_A,
+         AffordFood = FDSBALANCE_A, SkipFood = FDSSKIP_A, Soda = SODANO_A, Vegetables = OVEGNO_A,
+         ModeratelyActive = MODFREQW_A, VigorouslyActive = VIGFREQW_A, StrengthAct = STRFREQW_A, Aerobic = PA18_02R_A)
+
+
+#FINAL DATA SET CREATION
+#Merging the cleaned data sets into a single set for analysis
+MergeSetDiabetes <- bind_rows(Clean2019, Clean2020, Clean2021, Clean2022)
+#change NA values in DiabetesStatus to 0 value (0 = no)
+FullSetDiabetes <- MergeSetDiabetes %>% mutate(DiabetesStatus = coalesce(DiabetesStatus, 0))
+
+#Quick Review of Data
+glimpse(FullSetDiabetes)
+sample_n(FullSetDiabetes, 25)
+
+##Data Analysis 
+#Remove NA values before performing analysis
+FullSetDiabetes <- na.omit(FullSetDiabetes)
+#Group the two types of participants: those with and without T2D
+T2D <- FullSetDiabetes %>% filter(DiabetesStatus == 2)
+NoT2D <- FullSetDiabetes %>% filter(DiabetesStatus == 0)
+#Merge diabetes participants
+Participants <- bind_rows(T2D, NoT2D)
+
+
+#Group variables into lifestyle factors with identifier
+#Socioeconomic grouping: EducationLvl, PovertyRatio, HealthInsurance, FoodStamps
+Socio.T2D <- T2D %>% 
+  dplyr::select(HHX, EducationLvl, PovertyRatio, HealthInsurance, FoodStamps)
+Socio.NoT2D <- NoT2D %>% 
+  dplyr::select(HHX, EducationLvl, PovertyRatio, HealthInsurance, FoodStamps)
+Socio.Both <- Participants %>% 
+  dplyr::select(HHX, EducationLvl, PovertyRatio, HealthInsurance, FoodStamps)
+#Mental Health grouping: Depression, DepressionMeds, Anxiety, AnxietyMeds
+Mental.T2D <- T2D %>% 
+  dplyr::select(HHX, Depression, DepressionMeds, Anxiety, AnxietyMeds)
+Mental.NoT2D <- NoT2D %>% 
+  dplyr::select(HHX, Depression, DepressionMeds, Anxiety, AnxietyMeds)
+Mental.Both <- Participants %>% 
+  dplyr::select(HHX, Depression, DepressionMeds, Anxiety, AnxietyMeds)
+#Dietary Habits grouping: AffordFood, Soda, Vegetables, SkipFood
+Dietary.T2D <- T2D %>% 
+  dplyr::select(HHX, AffordFood, Soda, Vegetables, SkipFood)
+Dietary.NoT2D <- NoT2D %>% 
+  dplyr::select(HHX, AffordFood, Soda, Vegetables, SkipFood)
+Dietary.Both <- Participants %>% 
+  dplyr::select(HHX, AffordFood, Soda, Vegetables, SkipFood)
+#Physical Activity grouping: ModeratelyActive, VigorouslyActive, StrengthAct, Aerobic
+Physical.T2D <- T2D %>% 
+  dplyr::select(HHX, ModeratelyActive, VigorouslyActive, StrengthAct, Aerobic)
+Physical.NoT2D <- NoT2D %>% 
+  dplyr::select(HHX, ModeratelyActive, VigorouslyActive, StrengthAct, Aerobic)
+Physical.Both <- Participants %>% 
+  dplyr::select(HHX, ModeratelyActive, VigorouslyActive, StrengthAct, Aerobic)
+
+
+#PCA FOR SURVEY ANALYSIS ON BOTH TYPES OF PARTICIPANTS
+#This will showcase general patterns of lifestyle factors associated
+#with the risk of T2D
+#Remove identifier variable
+Socio.Both_num <- Socio.Both[ , 2:5]
+Mental.Both_num <- Mental.Both[ , 2:5]
+Dietary.Both_num <- Dietary.Both[ , 2:5]
+Physical.Both_num <- Physical.Both[ , 2:5]
+#PCA analysis
+#Socioeconomic
+Socio.Both_pca <- prcomp(Socio.Both_num, scale = TRUE)
+summary(Socio.Both_pca)
+#Mental Health
+Mental.Both_pca <- prcomp(Mental.Both_num, scale = TRUE)
+summary(Mental.Both_pca)
+#Dietary Habits
+Dietary.Both_pca <- prcomp(Dietary.Both_num, scale = TRUE)
+summary(Dietary.Both_pca)
+#Physical Activity
+Physical.Both_pca <- prcomp(Physical.Both_num, scale = TRUE)
+summary(Physical.Both_pca)
+
+#Normalize using scale function
+Socio.Both_pca$scale
+Mental.Both_pca$scale
+Dietary.Both_pca$scale
+Physical.Both_pca$scale
+
+#Print results to get standard deviations and loadings
+#Socioeconomic
+print(Socio.Both_pca)
+summary(Socio.Both_pca)
+#Mental Health
+print(Mental.Both_pca)
+summary(Mental.Both_pca)
+#Dietary Habits
+print(Dietary.Both_pca)
+summary(Dietary.Both_pca)
+#Physical Activity
+print(Physical.Both_pca)
+summary(Physical.Both_pca)
+
+#Extract principal components 
+Socio.Both_pc <- Socio.Both_pca[["x"]]
+Mental.Both_pc <- Mental.Both_pca[["x"]]
+Dietary.Both_pc <- Dietary.Both_pca[["x"]]
+Physical.Both_pc <- Physical.Both_pca[["x"]]
+
+
+#Compute correlation coefficients between original variables and principle components
+#the benefit of this is to see which variable strongly contributes to the lifestyle factor
+#Socioeconomic
+Socio.Both.cor <- cor(Socio.Both_num, Socio.Both_pc)
+print(Socio.Both.cor)
+#Identify strongest contributors
+strongest_Socio <- apply(abs(Socio.Both.cor), 2, which.max)
+print(strongest_Socio)
+#Mental Health
+Mental.Both.cor <- cor(Mental.Both_num, Mental.Both_pc)
+print(Mental.Both.cor)
+#Identify strongest contributors
+strongest_Mental <- apply(abs(Mental.Both.cor), 2, which.max)
+print(strongest_Mental)
+#Dietary Habits
+Dietary.Both.cor <- cor(Dietary.Both_num, Dietary.Both_pc)
+print(Dietary.Both.cor)
+#Identify strongest contributors
+strongest_Dietary<- apply(abs(Dietary.Both.cor), 2, which.max)
+print(strongest_Dietary)
+#Physical Activity
+Physical.Both.cor <- cor(Physical.Both_num, Physical.Both_pc)
+print(Physical.Both.cor)
+#Identify strongest contributors
+strongest_Physical <- apply(abs(Physical.Both.cor), 2, which.max)
+print(strongest_Physical)
+
+#PCA FOR SURVERY ANALYSIS WITH PARTICIPANTS SEPARATED
+#This will showcase how the lifestyle factors differ
+#T2D
+#Remove identifier variable
+Socio.T2D_num <- Socio.T2D[ , 2:5]
+Mental.T2D_num <- Mental.T2D[ , 2:5]
+Dietary.T2D_num <- Dietary.T2D[ , 2:5]
+Physical.T2D_num <- Physical.T2D[ , 2:5]
+#Socioeconomic
+Socio.T2D_pca <- prcomp(Socio.T2D_num, scale = TRUE)
+summary(Socio.T2D_pca)
+#Mental Health
+Mental.T2D_pca <- prcomp(Mental.T2D_num, scale = TRUE)
+summary(Mental.T2D_pca)
+#Dietary Habits
+Dietary.T2D_pca <- prcomp(Dietary.T2D_num, scale = TRUE)
+summary(Dietary.T2D_pca)
+#Physical Activity
+Physical.T2D_pca <- prcomp(Physical.T2D_num, scale = TRUE)
+summary(Physical.T2D_pca)
+
+#Normalize using scale function
+Socio.T2D_pca$scale
+Mental.T2D_pca$scale
+Dietary.T2D_pca$scale
+Physical.T2D_pca$scale
+
+#Print results to get standard deviations and loadings
+#Socioeconomic
+print(Socio.T2D_pca)
+summary(Socio.T2D_pca)
+#Mental Health
+print(Mental.T2D_pca)
+summary(Mental.T2D_pca)
+#Dietary Habits
+print(Dietary.T2D_pca)
+summary(Dietary.T2D_pca)
+#Physical Activity
+print(Physical.T2D_pca)
+summary(Physical.T2D_pca)
+
+#Extract principal components 
+Socio.T2D_pc <- Socio.T2D_pca[["x"]]
+Mental.T2D_pc <- Mental.T2D_pca[["x"]]
+Dietary.T2D_pc <- Dietary.T2D_pca[["x"]]
+Physical.T2D_pc <- Physical.T2D_pca[["x"]]
+
+
+#Compute correlation coefficients between original variables and principle components
+#the benefit of this is to see which variable strongly contributes to the lifestyle factor
+#Socioeconomic
+Socio.T2D.cor <- cor(Socio.T2D_num, Socio.T2D_pc)
+print(Socio.T2D.cor)
+#Identify strongest contributors
+strongest_Socio.T2D.cor <- apply(abs(Socio.T2D.cor), 2, which.max)
+print(strongest_Socio.T2D.cor)
+#Mental Health
+Mental.T2D.cor <- cor(Mental.T2D_num, Mental.T2D_pc)
+print(Mental.T2D.cor)
+#Identify strongest contributors
+strongest_Mental.T2D.cor <- apply(abs(Mental.T2D.cor), 2, which.max)
+print(strongest_Mental.T2D.cor)
+#Dietary Habits
+Dietary.T2D.cor <- cor(Dietary.T2D_num, Dietary.T2D_pc)
+print(Dietary.T2D.cor)
+#Identify strongest contributors
+strongest_Dietary.T2D.cor <- apply(abs(Dietary.T2D.cor), 2, which.max)
+print(strongest_Dietary.T2D.cor)
+#Physical Activity
+Physical.T2D.cor <- cor(Physical.T2D_num, Physical.T2D_pc)
+print(Physical.T2D.cor)
+#Identify strongest contributors
+strongest_Physical.T2D.cor <- apply(abs(Physical.T2D.cor), 2, which.max)
+print(strongest_Physical.T2D.cor)
+
+
+
+#NOT2D
+#Remove categorical variable
+Socio.NoT2D_num <- Socio.NoT2D[ , 2:5]
+Mental.NoT2D_num <- Mental.NoT2D[ , 2:5]
+Dietary.NoT2D_num <- Dietary.NoT2D[ , 2:5]
+Physical.NoT2D_num <- Physical.NoT2D[ , 2:5]
+#Socioeconomic
+Socio.NoT2D_pca <- prcomp(Socio.NoT2D_num, scale = TRUE)
+summary(Socio.NoT2D_pca)
+#Mental Health
+Mental.NoT2D_pca <- prcomp(Mental.NoT2D_num, scale = TRUE)
+summary(Mental.NoT2D_pca)
+#Dietary Habits
+Dietary.NoT2D_pca <- prcomp(Dietary.NoT2D_num, scale = TRUE)
+summary(Dietary.NoT2D_pca)
+#Physical Activity
+Physical.NoT2D_pca <- prcomp(Physical.NoT2D_num, scale = TRUE)
+summary(Physical.NoT2D_pca)
+
+#Normalize using scale function
+Socio.NoT2D_pca$scale
+Mental.NoT2D_pca$scale
+Dietary.NoT2D_pca$scale
+Physical.NoT2D_pca$scale
+
+#Print results to get standard deviations and loadings
+#Socioeconomic
+print(Socio.NoT2D_pca)
+summary(Socio.NoT2D_pca)
+#Mental Health
+print(Mental.NoT2D_pca)
+summary(Mental.NoT2D_pca)
+#Dietary Habits
+print(Dietary.NoT2D_pca)
+summary(Dietary.NoT2D_pca)
+#Physical Activity
+print(Physical.NoT2D_pca)
+summary(Physical.NoT2D_pca)
+
+
+#Extract principal components 
+Socio.NoT2D_pc <- Socio.NoT2D_pca[["x"]]
+Mental.NoT2D_pc <- Mental.NoT2D_pca[["x"]]
+Dietary.NoT2D_pc <- Dietary.NoT2D_pca[["x"]]
+Physical.NoT2D_pc <- Physical.NoT2D_pca[["x"]]
+
+
+#Compute correlation coefficients between original variables and principle components
+#the benefit of this is to see which variable strongly contributes to the lifestyle factor
+#Socioeconomic
+Socio.NoT2D.cor <- cor(Socio.NoT2D_num, Socio.NoT2D_pc)
+print(Socio.NoT2D.cor)
+#Identify strongest contributors
+strongest_Socio.NoT2D.cor <- apply(abs(Socio.NoT2D.cor), 2, which.max)
+print(strongest_Socio.NoT2D.cor)
+#Mental Health
+Mental.NoT2D.cor <- cor(Mental.NoT2D_num, Mental.NoT2D_pc)
+print(Mental.NoT2D.cor)
+#Identify strongest contributors
+strongest_Mental.NoT2D.cor <- apply(abs(Mental.NoT2D.cor), 2, which.max)
+print(strongest_Mental.NoT2D.cor)
+#Dietary Habits
+Dietary.NoT2D.cor <- cor(Dietary.NoT2D_num, Mental.NoT2D_pc)
+print(Dietary.NoT2D.cor)
+#Identify strongest contributors
+strongest_Dietary.NoT2D.cor <- apply(abs(Dietary.NoT2D.cor), 2, which.max)
+print(strongest_Dietary.NoT2D.cor)
+#Physical Activity
+Physical.NoT2D.cor <- cor(Physical.NoT2D_num, Physical.NoT2D_pc)
+print(Physical.NoT2D.cor)
+#Identify strongest contributors
+strongest_Physical.NoT2D.cor <- apply(abs(Physical.NoT2D.cor), 2, which.max)
+print(strongest_Physical.NoT2D.cor)
+
+
+
+#Compute Pearson Correlation to analyze the correlation between each lifestyle
+#factor and diabetes status
+#Create grouping Socioeconomic with the diabetes status attached for just T2D
+Socio <- Participants %>% 
+  dplyr::select(DiabetesStatus, EducationLvl, PovertyRatio, HealthInsurance, FoodStamps)
+Socio <- Socio %>% filter(DiabetesStatus == 2)
+#Exclude 'DiabetesStatus' to perform
+Socio <- Socio[, -which(names(Socio) == 'DiabetesStatus')]
+#Pearson Correlation
+Pearson.Socio <- cor(Socio)
+print(Pearson.Socio)
+
+#Create grouping Mental Health with the diabetes status attached for just T2D
+Mental <- Participants %>% 
+  dplyr::select(DiabetesStatus, Depression, DepressionMeds, Anxiety, AnxietyMeds)
+Mental <- Mental %>% filter(DiabetesStatus == 2)
+#Exclude 'DiabetesStatus' to perform
+Mental <- Mental[, -which(names(Mental) == 'DiabetesStatus')]
+#Pearson Correlation
+Pearson.Mental <- cor(Mental)
+print(Pearson.Mental)
+
+#Create grouping Dietary Habits with the diabetes status attached for just T2D
+Dietary <- Participants %>% 
+  dplyr::select(DiabetesStatus, AffordFood, Soda, Vegetables, SkipFood)
+Dietary <- Dietary %>% filter(DiabetesStatus == 2)
+#Exclude 'DiabetesStatus' to perform
+Dietary <- Dietary[, -which(names(Dietary) == 'DiabetesStatus')]
+#Pearson Correlation
+Pearson.Dietary <- cor(Dietary)
+print(Pearson.Dietary)
+
+#Create grouping Physical Activity with the diabetes status attached for just T2D
+Physical <- Participants %>% 
+  dplyr::select(DiabetesStatus, ModeratelyActive, VigorouslyActive, StrengthAct, Aerobic)
+Physical <- Physical %>% filter(DiabetesStatus == 2)
+#Exclude 'DiabetesStatus' to perform
+Physical <- Physical[, -which(names(Physical) == 'DiabetesStatus')]
+#Pearson Correlation
+Pearson.Physical <- cor(Physical)
+print(Pearson.Physical)
+
+
+
+#Calculate Pearson Correlation coefficient for the matrix
+#Function to calculate Socioeconomic p-values for each correlation coefficient
+Socio.pvalues <- function(Pearson.Socio) {
+  Socio.values <- matrix(NA, nrow = ncol(Pearson.Socio), ncol = ncol(Pearson.Socio))
+  for (i in 1:ncol(Pearson.Socio)) {
+    for (j in 1:ncol(Pearson.Socio)) {
+      if (i != j) {
+        Socio.values[i, j] <- cor.test(Pearson.Socio[, i], Pearson.Socio[, j])$p.value
+      }
+    }
+  }
+  return(Socio.values)
+}
+
+# Get p-values for each correlation coefficient
+Socio.values <- Socio.pvalues(Pearson.Socio)
+#Remove NA values from pvalues
+Socio.values <- Socio.values[!is.na(Socio.values)]
+#Compute overall pvalue using Fisher's method and convert using a chi-squared distribution
+Socio.overall <- sum(-2 * log(Socio.values))
+Socio.overall <- pchisq(Socio.overall, df = 2 * length(Socio.values), lower.tail = FALSE)
+# Print overall p-value
+print(Socio.overall)
+
+#Function to calculate Mental Health p-values for each correlation coefficient
+Mental.pvalues <- function(Pearson.Mental) {
+  Mental.values <- matrix(NA, nrow = ncol(Pearson.Mental), ncol = ncol(Pearson.Mental))
+  for (i in 1:ncol(Pearson.Mental)) {
+    for (j in 1:ncol(Pearson.Mental)) {
+      if (i != j) {
+        Mental.values[i, j] <- cor.test(Pearson.Mental[, i], Pearson.Mental[, j])$p.value
+      }
+    }
+  }
+  return(Mental.values)
+}
+
+# Get p-values for each correlation coefficient
+Mental.values <- Mental.pvalues(Pearson.Mental)
+#Remove NA values from pvalues
+Mental.values <- Mental.values[!is.na(Mental.values)]
+#Compute overall pvalue using Fisher's method and convert using a chi-squared distribution
+Mental.overall <- sum(-2 * log(Mental.values))
+Mental.overall <- pchisq(Mental.overall, df = 2 * length(Mental.values), lower.tail = FALSE)
+# Print overall p-value
+print(Mental.overall)
+
+#Function to calculate Dietary Habits p-values for each correlation coefficient
+Dietary.pvalues <- function(Pearson.Dietary) {
+  Dietary.values <- matrix(NA, nrow = ncol(Pearson.Dietary), ncol = ncol(Pearson.Dietary))
+  for (i in 1:ncol(Pearson.Dietary)) {
+    for (j in 1:ncol(Pearson.Dietary)) {
+      if (i != j) {
+        Dietary.values[i, j] <- cor.test(Pearson.Dietary[, i], Pearson.Dietary[, j])$p.value
+      }
+    }
+  }
+  return(Dietary.values)
+}
+
+# Get p-values for each correlation coefficient
+Dietary.values <- Dietary.pvalues(Pearson.Dietary)
+#Remove NA values from pvalues
+Dietary.values <- Dietary.values[!is.na(Dietary.values)]
+#Compute overall pvalue using Fisher's method and convert using a chi-squared distribution
+Dietary.overall <- sum(-2 * log(Dietary.values))
+Dietary.overall <- pchisq(Dietary.overall, df = 2 * length(Dietary.values), lower.tail = FALSE)
+# Print overall p-value
+print(Dietary.overall)
+
+#Function to calculate Physical Activity p-values for each correlation coefficient
+Physical.pvalues <- function(Pearson.Physical) {
+  Physical.values <- matrix(NA, nrow = ncol(Pearson.Physical), ncol = ncol(Pearson.Physical))
+  for (i in 1:ncol(Pearson.Physical)) {
+    for (j in 1:ncol(Pearson.Physical)) {
+      if (i != j) {
+        Physical.values[i, j] <- cor.test(Pearson.Physical[, i], Pearson.Physical[, j])$p.value
+      }
+    }
+  }
+  return(Physical.values)
+}
+
+# Get p-values for each correlation coefficient
+Physical.values <- Physical.pvalues(Pearson.Physical)
+#Remove NA values from pvalues
+Physical.values <- Physical.values[!is.na(Physical.values)]
+#Compute overall pvalue using Fisher's method and convert using a chi-squared distribution
+Physical.overall <- sum(-2 * log(Physical.values))
+Physical.overall <- pchisq(Physical.overall, df = 2 * length(Physical.values), lower.tail = FALSE)
+# Print overall p-value
+print(Physical.overall)
+
+
+##Data Visualizations
+#Load packages that are needed
+install.packages("remotes")
+remotes::install_github("vqv/ggbiplot")
+library(ggbiplot)
+install.packages("devtools")
+
+
+#Create Bi-Plot to display T2D and NoT2D
+#Ellipse probability set to 0.80 to help with clarity on graph
+#Socioeconomic
+Socio.biplot <- ggbiplot(Socio.Both_pca, 
+                         obs.scale = 1,
+                         var.scale = 1, 
+                         groups = factor(Participants$DiabetesStatus),
+                         ellipse = TRUE,
+                         circle = TRUE,
+                         ellipse.prob = 0.80)
+
+
+#Add title and legend to plot
+Socio.biplot <- Socio.biplot + labs(title = 'Socioeconomic Biplot', 
+                                    colour = "Type of Diabetes")
+#Set theme of graph for aesethics 
+Socio.biplot <- Socio.biplot + theme_bw()
+#Change position of legend 
+Socio.biplot <- Socio.biplot + theme(legend.direction = 'vertical', 
+                                     legend.position = 'right') 
+print(Socio.biplot) 
+
+#Mental Health
+Mental.biplot <- ggbiplot(Mental.Both_pca, 
+                          obs.scale = 1,
+                          var.scale = 1, 
+                          groups = factor(Participants$DiabetesStatus),
+                          ellipse = TRUE,
+                          circle = TRUE,
+                          ellipse.prob = 0.80)
+
+#Add title and legend to plot
+Mental.biplot <- Mental.biplot + labs(title = 'Mental Health Biplot', 
+                                      colour = "Type of Diabetes")
+#Set theme of graph for aesethics 
+Mental.biplot <- Mental.biplot + theme_bw()
+#Change position of legend 
+Mental.biplot <- Mental.biplot + theme(legend.direction = 'vertical', 
+                                       legend.position = 'right') 
+print(Mental.biplot)
+
+#Dietary Habits
+Dietary.biplot <- ggbiplot(Dietary.Both_pca, 
+                           obs.scale = 1,
+                           var.scale = 1, 
+                           groups = factor(Participants$DiabetesStatus),
+                           ellipse = TRUE,
+                           circle = TRUE,
+                           ellipse.prob = 0.80)
+
+#Add title and legend to plot
+Dietary.biplot <- Dietary.biplot + labs(title = 'Dietary Habits Biplot', 
+                                        colour = "Type of Diabetes")
+#Set theme of graph for aesethics 
+Dietary.biplot <- Dietary.biplot + theme_bw()
+#Change position of legend 
+Dietary.biplot <- Dietary.biplot + theme(legend.direction = 'vertical', 
+                                         legend.position = 'right') 
+print(Dietary.biplot)
+
+#Physical Activity
+Physical.biplot <- ggbiplot(Physical.Both_pca, 
+                            obs.scale = 1,
+                            var.scale = 1, 
+                            groups = factor(Participants$DiabetesStatus),
+                            ellipse = TRUE,
+                            circle = TRUE,
+                            ellipse.prob = 0.80)
+
+#Add title and legend to plot
+Physical.biplot <- Physical.biplot + labs(title = 'Physical Activity Biplot', 
+                                          colour = "Type of Diabetes")
+#Set theme of graph for aesethics 
+Physical.biplot <- Physical.biplot + theme_bw()
+#Change position of legend 
+Physical.biplot <- Physical.biplot + theme(legend.direction = 'vertical', 
+                                           legend.position = 'right') 
+print(Physical.biplot)
+
+
+#Create correlation matrix plot
+#Prep data for correlation matrix by removing the variables: HHX, SRVY_YR, DiabetesStatus
+Participants_filtered  <- Participants[, 4:21]
+correlation_matrix <- cor(Participants_filtered)
+
+# Display correlation matrix
+print(correlation_matrix)
+
+library(ggplot2)
+library(reshape2)
+
+# Melt the correlation matrix for plotting
+melted_corr <- melt(correlation_matrix)
+
+# Plot heatmap without variable names
+ggplot(data = melted_corr, aes(Var1, Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Correlation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 10, hjust = 1),
+        axis.title = element_blank()) +  # Remove axis titles
+  labs(title = 'Correlation Matrix \non Lifestyle Factors') +
+  coord_fixed()
+
